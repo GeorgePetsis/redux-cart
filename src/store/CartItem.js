@@ -1,4 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { toggleActions } from "./Toggle";
+
 const initialItemCounterState = { items: [], totalQuantity: 0 };
 
 const cartSlice = createSlice({
@@ -40,6 +42,50 @@ const cartSlice = createSlice({
     },
   },
 });
+
+export const sendCart = (cart) => {
+  return async (dispatch) => {
+    dispatch(
+      toggleActions.showNotification({
+        status: "pending",
+        title: "Sending...",
+        message: "The data is sending!",
+      }),
+    );
+
+    const sendRequest = async () => {
+      const response = await fetch(
+        `https://redux-backend-19f58-default-rtdb.europe-west1.firebasedatabase.app/cart.json`,
+        {
+          method: "PUT",
+          body: JSON.stringify(cart),
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Sending cart data failed");
+      }
+    };
+
+    try {
+      await sendRequest();
+      dispatch(
+        toggleActions.showNotification({
+          status: "success",
+          title: "Success!",
+          message: "Cart data sent successfully",
+        }),
+      );
+    } catch (error) {
+      dispatch(
+        toggleActions.showNotification({
+          status: "error",
+          title: "Error!",
+          message: "Send cart data failed!",
+        }),
+      );
+    }
+  };
+};
 
 export default cartSlice.reducer;
 export const cartItemCounterActions = cartSlice.actions;
