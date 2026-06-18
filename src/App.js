@@ -5,8 +5,8 @@ import Layout from "./components/Layout/Layout";
 import Products from "./components/Shop/Products";
 import Cart from "./components/Cart/Cart";
 import { useSelector, useDispatch } from "react-redux";
-import { toggleActions } from "./store/Toggle";
-import { sendCart } from "./store/CartItem";
+// import { toggleActions } from "./store/Toggle";
+import { fetchCart, sendCart } from "./store/cart-actions";
 
 let isInitial = true;
 
@@ -17,12 +17,17 @@ function App() {
   const notification = useSelector((state) => state.toggler.notification);
 
   useEffect(() => {
+    dispatch(fetchCart());
+  }, [dispatch]);
+
+  useEffect(() => {
     if (isInitial) {
       isInitial = false;
       return;
     }
-
-    dispatch(sendCart(cart));
+    if (cart.changed) {
+      dispatch(sendCart(cart));
+    }
   }, [cart, dispatch]);
 
   return (
